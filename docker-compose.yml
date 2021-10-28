@@ -1,0 +1,34 @@
+version: '3.2'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: "db"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_PASSWORD: passwprd
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_POSTGRES:-5533}:5432"
+    expose: 
+      - "${DB_POSTGRES:-5533}"
+
+  template:
+    build: .
+    image: template:latest
+    command: bundle exec rails s -b 0.0.0.0
+    volumes:
+      - .:/app
+      - bundle_gems:/usr/local/bundle
+    ports:
+      - "${APP_TEMPLATE:-5003}:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    tmpfs:
+      - /app/tmp
+
+volumes:
+  postgres_data:
+  bundle_gems:
